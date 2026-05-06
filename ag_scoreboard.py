@@ -93,15 +93,15 @@ class ScoreboardGUI:
 
         # Team labels
         red_lbl = tk.Label(frame, text="RED", bg=self.BG, fg=self.RED_BRIGHT,
-                           font=("Courier New", 28, "bold"))
+                           font=("Courier New", 50, "bold"))
         red_lbl.grid(row=0, column=0, pady=(0, 8))
 
         blue_lbl = tk.Label(frame, text="BLUE", bg=self.BG, fg=self.BLUE_BRIGHT,
-                            font=("Courier New", 28, "bold"))
+                            font=("Courier New", 50, "bold"))
         blue_lbl.grid(row=0, column=2, pady=(0, 8))
 
         # Score digits
-        score_font = tkfont.Font(family="Courier New", size=140, weight="bold")
+        score_font = tkfont.Font(family="Courier New", size=240, weight="bold")
 
         self.red_var  = tk.StringVar(value="0")
         self.blue_var = tk.StringVar(value="0")
@@ -412,8 +412,8 @@ class Client:
         self.scoring   = False
         self.score     = 0
         self._lock     = threading.Lock()
-        title = f"Scoreboard – CLIENT  [{team.upper()}]"
-        self.gui = ScoreboardGUI(title)
+        # title = f"Scoreboard – CLIENT  [{team.upper()}]"
+        # self.gui = ScoreboardGUI(title)
 
     # ── sensor / test scoring ─────────────────────────────────────────────────
 
@@ -478,15 +478,15 @@ class Client:
 
     # ── GUI refresh ───────────────────────────────────────────────────────────
 
-    def _gui_update_loop(self):
-        while True:
-            with self._lock:
-                s = self.score
-            if self.team == "red":
-                self.gui.set_scores(s, 0)
-            else:
-                self.gui.set_scores(0, s)
-            time.sleep(0.1)
+    # def _gui_update_loop(self):
+    #     while True:
+    #         with self._lock:
+    #             s = self.score
+    #         if self.team == "red":
+    #             self.gui.set_scores(s, 0)
+    #         else:
+    #             self.gui.set_scores(0, s)
+    #         time.sleep(0.1)
 
     # ── main entry ────────────────────────────────────────────────────────────
 
@@ -498,17 +498,19 @@ class Client:
         except Exception as e:
             sys.exit(f"  [client] Cannot connect: {e}")
         print(f"  [client] Connected.")
-        self.gui.set_status(f"Connected to {self.server_ip}  |  Team: {self.team.upper()}  |  Waiting…")
+        # self.gui.set_status(f"Connected to {self.server_ip}  |  Team: {self.team.upper()}  |  Waiting…")
 
         threading.Thread(target=self._recv_loop,  args=(sock,), daemon=True).start()
         threading.Thread(target=self._send_loop,  args=(sock,), daemon=True).start()
         threading.Thread(target=self._scoring_loop,              daemon=True).start()
-        threading.Thread(target=self._gui_update_loop,           daemon=True).start()
+        # threading.Thread(target=self._gui_update_loop,           daemon=True).start()
 
         if self.test_mode:
             print("  [client] TEST MODE – scoring 1 pt/sec when active.")
 
-        self.gui.run()
+        # self.gui.run()
+        while True:
+            time.sleep(0.1)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
