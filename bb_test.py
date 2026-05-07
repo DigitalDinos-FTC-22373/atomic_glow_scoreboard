@@ -13,7 +13,7 @@ except ImportError:
 
 PIN = 26  # BCM numbering
 DELAY_SEC = 0.01  # 100 Hz
-N_SAMP = 100 # Num of samples to store
+N_SAMP = 70 # Num of samples to store
 
 
 def main():
@@ -25,7 +25,7 @@ def main():
     last_change_time = time.time()
     last_dot_time = last_change_time
 
-    hist = [1] * N_SAMP
+    # hist = [1] * N_SAMP
 
     def _handle_shutdown(signum, frame):
         nonlocal running
@@ -45,8 +45,9 @@ def main():
             ## for testing, print the history if there are some breaks (0 value) 
             # and 9 of the last 10 are unbroken (1) 
             # and the 11th was broken (so it only prints the history once per "major" break)
-            if (sum(hist) < 100 and sum(hist[:10]) > 9 and hist[11] == 0):
+            if (len(hist) == N_SAMP):
                 print(hist)
+                hist = []
 
             ######### this prints only changes in state, or a dot if there's been no change for a second
             # if last_state is None or state != last_state:
