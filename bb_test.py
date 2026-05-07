@@ -12,7 +12,8 @@ except ImportError:
     sys.exit(1)
 
 PIN = 26  # BCM numbering
-DELAY_SEC = 0.1  # 10 Hz
+DELAY_SEC = 0.01  # 100 Hz
+N_SAMP = 100 # Num of samples to store
 
 
 def main():
@@ -23,6 +24,8 @@ def main():
     last_state = None
     last_change_time = time.time()
     last_dot_time = last_change_time
+
+    hist = [1] * N_SAMP
 
     def _handle_shutdown(signum, frame):
         nonlocal running
@@ -35,15 +38,23 @@ def main():
         while running:
             state = GPIO.input(PIN)
             now = time.time()
+
+            hist.append(state)
+            hist = hist[-N_SAMP:]
             
-            if last_state is None or state != last_state:
-                print(state, flush=True)
-                last_state = state
-                last_change_time = now
-                last_dot_time = now
-            elif now - last_dot_time >= 1.0:
-                print('.', flush=True)
-                last_dot_time = now
+            ## for testing, print the history if there are some breaks (0 value) and the last 10 are unbroken (1)
+            if (sum(hist) < 100 and sum(hist[:10]) == 10):
+                print(hist)
+
+            ######### this prints only changes in state, or a dot if there's been no change for a second
+            # if last_state is None or state != last_state:
+            #     print(state, flush=True)
+            #     last_state = state
+            #     last_change_time = now
+            #     last_dot_time = now
+            # elif now - last_dot_time >= 1.0:
+            #     print('.', flush=True)
+            #     last_dot_time = now
             
             time.sleep(DELAY_SEC)
     finally:
