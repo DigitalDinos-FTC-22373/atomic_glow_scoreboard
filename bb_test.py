@@ -26,7 +26,8 @@ def main():
     last_dot_time = last_change_time
 
     # hist = [1] * N_SAMP
-    hist = []
+    # hist = []
+    hist = ""
 
     def _handle_shutdown(signum, frame):
         nonlocal running
@@ -48,7 +49,7 @@ def main():
             # and the 11th was broken (so it only prints the history once per "major" break)
             if (len(hist) == N_SAMP):
                 print(hist)
-                hist = []
+                hist = ""
 
             ######### this prints only changes in state, or a dot if there's been no change for a second
             # if last_state is None or state != last_state:
