@@ -42,8 +42,10 @@ def main():
             hist.append(state)
             hist = hist[-N_SAMP:]
             
-            ## for testing, print the history if there are some breaks (0 value) and the last 10 are unbroken (1)
-            if (sum(hist) < 100 and sum(hist[:10]) == 10):
+            ## for testing, print the history if there are some breaks (0 value) 
+            # and 9 of the last 10 are unbroken (1) 
+            # and the 11th was broken (so it only prints the history once per "major" break)
+            if (sum(hist) < 100 and sum(hist[:10]) > 9 and hist[11] == 0):
                 print(hist)
 
             ######### this prints only changes in state, or a dot if there's been no change for a second
