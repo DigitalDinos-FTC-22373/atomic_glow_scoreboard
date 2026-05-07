@@ -41,7 +41,8 @@ def main():
             state = GPIO.input(PIN)
             now = time.time()
 
-            hist.append("X" if state else "_")
+            # hist.append(state)
+            hist += "X" if state else "_"
             hist = hist[-N_SAMP:]
             
             ## for testing, print the history if there are some breaks (0 value) 
