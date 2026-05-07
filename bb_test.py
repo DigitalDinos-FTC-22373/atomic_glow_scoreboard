@@ -35,7 +35,7 @@ def main():
         while running:
             state = GPIO.input(PIN)
             now = time.time()
-
+            
             if last_state is None or state != last_state:
                 print(state, flush=True)
                 last_state = state
@@ -44,7 +44,7 @@ def main():
             elif now - last_dot_time >= 1.0:
                 print('.', flush=True)
                 last_dot_time = now
-
+            
             time.sleep(DELAY_SEC)
     finally:
         GPIO.cleanup()
