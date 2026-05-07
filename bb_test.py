@@ -26,6 +26,7 @@ def main():
     last_dot_time = last_change_time
 
     # hist = [1] * N_SAMP
+    hist = []
 
     def _handle_shutdown(signum, frame):
         nonlocal running
