@@ -23,7 +23,6 @@ Test mode (-t):
 import argparse
 import json
 import socket
-import signal
 import sys
 import threading
 import time
@@ -421,11 +420,15 @@ class Client:
         self.scoring   = False
         self.score     = 0
         self._lock     = threading.Lock()
-        self.hist      = []
         # title = f"Scoreboard – CLIENT  [{team.upper()}]"
         # self.gui = ScoreboardGUI(title)
 
-        if not test_mode:
+
+    # ── sensor / test scoring ─────────────────────────────────────────────────
+
+    def _scoring_loop(self):
+
+        if not self.test_mode:
             try:
                 import RPi.GPIO as GPIO
             except ImportError:
@@ -433,24 +436,31 @@ class Client:
                 sys.exit(1)
             # init gpio
             GPIO.setmode(GPIO.BCM)
-            GPIO.setup(PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+            GPIO.setup(PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)        
 
-    # ── sensor / test scoring ─────────────────────────────────────────────────
-
-    def _scoring_loop(self):
-        """Increment score. Replace this with real sensor logic."""
+        hist = []
+        scoring_a_point = False
         while True:
             if self.scoring:
                 if self.test_mode:
                     with self._lock:
                         self.score += 1
-                        time.sleep(1.0)
+                    time.sleep(1.0)
                 else:
-                    with self._lock:
-                        print("add GPIO logic")
-                        time.sleep(1.0)
-
-
+                    state = GPIO.input(PIN)
+                    hist.append(state)
+                    hist = hist[-N_SAMP:]  # limit history length
+                    if len(hist) == N_SAMP:
+                        if not scoring_a_point and sum(hist) < 5:
+                            # more than 5 of last N samples low, score!
+                            print("SCORE!", hist)
+                            scoring_a_point = True
+                            with self._lock:
+                                self.score += 1
+                        if scoring_a_point and sum(hist) == N_SAMP:
+                            # all samples are now high, reset and wait for next ball to score
+                            scoring_a_point = False
+                    time.sleep(BB_SAMP_T)
             else:
                 time.sleep(1.0)
 
