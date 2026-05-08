@@ -23,15 +23,27 @@ Test mode (-t):
 import argparse
 import json
 import socket
+import signal
 import sys
 import threading
 import time
 import tkinter as tk
 from tkinter import font as tkfont
 
+try:
+    import RPi.GPIO as GPIO
+except ImportError:
+    print("This script must be run on a Raspberry Pi with RPi.GPIO installed.", file=sys.stderr)
+    sys.exit(1)
+
 # ─────────────────────────── Network config ──────────────────────────────────
 PORT = 55321
 UPDATE_RATE = 0.1   # 10 Hz
+
+# ─────────────────────────── Breakbeam config ──────────────────────────────────
+PIN = 26  # BCM numbering
+BB_SAMP_T = 0.002  # 500 Hz
+N_SAMP = 10 # Num of samples to store
 
 # ─────────────────────────── Shared protocol ─────────────────────────────────
 # Client → Server  {"team": "red"|"blue", "score": <int>}
@@ -39,7 +51,7 @@ UPDATE_RATE = 0.1   # 10 Hz
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  GUI  (used by both server and client in their own windows)
+#  GUI  (used by server)
 # ══════════════════════════════════════════════════════════════════════════════
 
 class ScoreboardGUI:
@@ -412,18 +424,34 @@ class Client:
         self.scoring   = False
         self.score     = 0
         self._lock     = threading.Lock()
+        self.hist      = []
         # title = f"Scoreboard – CLIENT  [{team.upper()}]"
         # self.gui = ScoreboardGUI(title)
+
+        if not test_mode:
+            # init gpio
+            GPIO.setmode(GPIO.BCM)
+            GPIO.setup(PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
     # ── sensor / test scoring ─────────────────────────────────────────────────
 
     def _scoring_loop(self):
         """Increment score. Replace this with real sensor logic."""
         while True:
-            time.sleep(1.0)
-            if self.scoring and self.test_mode:
-                with self._lock:
-                    self.score += 1
+            if self.scoring:
+                if self.test_mode:
+                    with self._lock:
+                        self.score += 1
+                        time.sleep(1.0)
+                else:
+                    with self._lock:
+                        print("add GPIO logic")
+                        time.sleep(1.0)
+
+
+            else:
+                time.sleep(1.0)
+
 
     # ── send scores to server at 10 Hz ───────────────────────────────────────
 
@@ -513,8 +541,20 @@ class Client:
             print("  [client] TEST MODE – scoring 1 pt/sec when active.")
 
         # self.gui.run()
-        while True:
-            time.sleep(0.1)
+        running = True
+
+        def _handle_shutdown(signum, frame):
+            nonlocal running
+            running = False
+
+        signal.signal(signal.SIGINT, _handle_shutdown)
+        signal.signal(signal.SIGTERM, _handle_shutdown)
+
+        try:
+            while running:
+                time.sleep(0.1)
+        finally:
+            GPIO.cleanup()
 
 
 # ══════════════════════════════════════════════════════════════════════════════
