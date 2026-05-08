@@ -420,8 +420,6 @@ class Client:
         self.scoring   = False
         self.score     = 0
         self._lock     = threading.Lock()
-        # title = f"Scoreboard – CLIENT  [{team.upper()}]"
-        # self.gui = ScoreboardGUI(title)
 
 
     # ── sensor / test scoring ─────────────────────────────────────────────────
@@ -499,34 +497,19 @@ class Client:
                         cmd = msg.get("cmd")
                         if cmd == "start":
                             self.scoring = True
-                            self.gui.set_status("Status: SCORING")
                             print("  [client] Scoring STARTED.")
                         elif cmd == "stop":
                             self.scoring = False
-                            self.gui.set_status("Status: STOPPED")
                             print("  [client] Scoring STOPPED.")
                         elif cmd == "reset":
                             self.scoring = False
                             with self._lock:
                                 self.score = 0
-                            self.gui.set_status("Status: RESET")
                             print("  [client] Scores RESET.")
                     except json.JSONDecodeError:
                         pass
             except Exception:
                 break
-
-    # ── GUI refresh ───────────────────────────────────────────────────────────
-
-    # def _gui_update_loop(self):
-    #     while True:
-    #         with self._lock:
-    #             s = self.score
-    #         if self.team == "red":
-    #             self.gui.set_scores(s, 0)
-    #         else:
-    #             self.gui.set_scores(0, s)
-    #         time.sleep(0.1)
 
     # ── main entry ────────────────────────────────────────────────────────────
 
@@ -542,34 +525,16 @@ class Client:
                 print(f"  [client] Cannot connect: {e}")
                 time.sleep(1.0)
         print(f"  [client] Connected.")
-        # self.gui.set_status(f"Connected to {self.server_ip}  |  Team: {self.team.upper()}  |  Waiting…")
 
         threading.Thread(target=self._recv_loop,  args=(sock,), daemon=True).start()
         threading.Thread(target=self._send_loop,  args=(sock,), daemon=True).start()
         threading.Thread(target=self._scoring_loop,              daemon=True).start()
-        # threading.Thread(target=self._gui_update_loop,           daemon=True).start()
 
         if self.test_mode:
             print("  [client] TEST MODE – scoring 1 pt/sec when active.")
 
         while True:
-            time.sleep(0.1)
-
-        # running = True
-
-        # def _handle_shutdown(signum, frame):
-        #     nonlocal running
-        #     running = False
-
-        # signal.signal(signal.SIGINT, _handle_shutdown)
-        # signal.signal(signal.SIGTERM, _handle_shutdown)
-
-        # try:
-        #     while running:
-        #         time.sleep(0.1)
-        # finally:
-        #     GPIO.cleanup()
-        
+            time.sleep(0.1)        
 
 
 # ══════════════════════════════════════════════════════════════════════════════
