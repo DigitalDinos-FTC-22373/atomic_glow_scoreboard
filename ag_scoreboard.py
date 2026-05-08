@@ -30,11 +30,6 @@ import time
 import tkinter as tk
 from tkinter import font as tkfont
 
-try:
-    import RPi.GPIO as GPIO
-except ImportError:
-    print("This script must be run on a Raspberry Pi with RPi.GPIO installed.", file=sys.stderr)
-    sys.exit(1)
 
 # ─────────────────────────── Network config ──────────────────────────────────
 PORT = 55321
@@ -416,6 +411,8 @@ class Server:
 
 class Client:
     def __init__(self, server_ip: str, team: str, test_mode=False):
+
+
         if team not in ("red", "blue"):
             sys.exit("team must be 'red' or 'blue'")
         self.server_ip = server_ip
@@ -429,6 +426,11 @@ class Client:
         # self.gui = ScoreboardGUI(title)
 
         if not test_mode:
+            try:
+                import RPi.GPIO as GPIO
+            except ImportError:
+                print("This script must be run on a Raspberry Pi with RPi.GPIO installed.", file=sys.stderr)
+                sys.exit(1)
             # init gpio
             GPIO.setmode(GPIO.BCM)
             GPIO.setup(PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
