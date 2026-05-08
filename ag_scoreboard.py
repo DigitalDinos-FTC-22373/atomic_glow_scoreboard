@@ -542,21 +542,24 @@ class Client:
         if self.test_mode:
             print("  [client] TEST MODE – scoring 1 pt/sec when active.")
 
-        # self.gui.run()
-        running = True
+        while True:
+            time.sleep(0.1)
 
-        def _handle_shutdown(signum, frame):
-            nonlocal running
-            running = False
+        # running = True
 
-        signal.signal(signal.SIGINT, _handle_shutdown)
-        signal.signal(signal.SIGTERM, _handle_shutdown)
+        # def _handle_shutdown(signum, frame):
+        #     nonlocal running
+        #     running = False
 
-        try:
-            while running:
-                time.sleep(0.1)
-        finally:
-            GPIO.cleanup()
+        # signal.signal(signal.SIGINT, _handle_shutdown)
+        # signal.signal(signal.SIGTERM, _handle_shutdown)
+
+        # try:
+        #     while running:
+        #         time.sleep(0.1)
+        # finally:
+        #     GPIO.cleanup()
+        
 
 
 # ══════════════════════════════════════════════════════════════════════════════
