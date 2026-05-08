@@ -493,10 +493,14 @@ class Client:
     def run(self):
         print(f"  [client] Connecting to {self.server_ip}:{PORT} as {self.team}…")
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        try:
-            sock.connect((self.server_ip, PORT))
-        except Exception as e:
-            sys.exit(f"  [client] Cannot connect: {e}")
+        connected = False
+        while not connected:
+            try:
+                sock.connect((self.server_ip, PORT))
+                connected = True
+            except Exception as e:
+                print(f"  [client] Cannot connect: {e}")
+                time.sleep(1.0)
         print(f"  [client] Connected.")
         # self.gui.set_status(f"Connected to {self.server_ip}  |  Team: {self.team.upper()}  |  Waiting…")
 
