@@ -15,6 +15,10 @@ PIN = 26  # BCM numbering
 DELAY_SEC = 0.01  # 100 Hz
 N_SAMP = 70 # Num of samples to store
 
+# Empirically, the holes in the balls can un-break the beam for up to 0.014s or 14ms.
+# Therefore, we should count a string of zeros as a point, and then prevent counting another point 
+# until there is a string of ones lasting probably at least 20ms.
+# At a 500 Hz sampling rate, that's 10 samples.
 
 def main():
     GPIO.setmode(GPIO.BCM)
