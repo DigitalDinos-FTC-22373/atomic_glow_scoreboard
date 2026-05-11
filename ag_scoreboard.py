@@ -99,15 +99,16 @@ class ScoreboardGUI:
 
         # Team labels
         red_lbl = tk.Label(frame, text="RED", bg=self.BG, fg=self.RED_BRIGHT,
-                           font=("Courier New", 50, "bold"))
-        red_lbl.grid(row=0, column=0, pady=(0, 8))
+                           font=("Nimbus Sans Narrow", 150, "bold"))
+        red_lbl.grid(row=0, column=0, pady=(0, 4))
 
         blue_lbl = tk.Label(frame, text="BLUE", bg=self.BG, fg=self.BLUE_BRIGHT,
-                            font=("Courier New", 50, "bold"))
-        blue_lbl.grid(row=0, column=2, pady=(0, 8))
+                            font=("Nimbus Sans Narrow", 150, "bold"))
+        blue_lbl.grid(row=0, column=2, pady=(0, 4))
 
         # Score digits
-        score_font = tkfont.Font(family="Courier New", size=240, weight="bold")
+        print(tkfont.families())
+        score_font = tkfont.Font(family="Nimbus Sans Narrow", size=350, weight="bold")
 
         self.red_var  = tk.StringVar(value="0")
         self.blue_var = tk.StringVar(value="0")
@@ -286,7 +287,7 @@ class Server:
         except Exception as e:
             print(f"  [sim-client-{team}-{client_num}] connect failed: {e}")
             return
-        score = 0
+        score = 222 #0
         buf = ""
         # Thread to read commands from server
         def reader():
